@@ -15,12 +15,23 @@ const PANTALLAS: Dictionary = {
 const PANTALLAS_DE_MENU: Array[String] = [
 	"menu_principal", "seleccion_nivel", "ficha_receta", "como_jugar", "codice", "opciones", "creditos",
 ]
+## Cuánto se oscurece el fondo 3D en cada pantalla (0 = brillante). Las de mucho texto lo oscurecen más.
+const ATENUACION_FONDO: Dictionary = {
+	"menu_principal": 0.0,
+	"seleccion_nivel": 0.3,
+	"ficha_receta": 0.35,
+	"como_jugar": 0.5,
+	"codice": 0.5,
+	"opciones": 0.45,
+	"creditos": 0.55,
+}
 
 var nivel_seleccionado: int = 1
 var nombre_actual: String = ""
 var pantalla_actual: Node = null
 
 var _historial: Array[String] = []
+var _fondo_3d: FondoMenu3D = null
 
 
 ## Desmarcalo en el Inspector del nodo Main para saltarte la intro 3D mientras desarrollas.
@@ -79,6 +90,7 @@ func salir() -> void:
 func _mostrar(nombre: String, datos: Dictionary) -> void:
 	if pantalla_actual != null:
 		pantalla_actual.queue_free()
+	_actualizar_fondo_3d(nombre)
 	var nueva := (load(PANTALLAS[nombre]) as PackedScene).instantiate()
 	if nueva.has_method("preparar"):
 		nueva.call("preparar", datos)
@@ -88,6 +100,21 @@ func _mostrar(nombre: String, datos: Dictionary) -> void:
 	nombre_actual = nombre
 	if PANTALLAS_DE_MENU.has(nombre):
 		AudioController.reproducir_pista("menu")
+
+
+## El fondo 3D se crea una sola vez, se muestra en las pantallas del menú y se apaga en la partida.
+## Debe quedar listo antes de añadir la pantalla: Pantalla._fondo() lo consulta para no dibujar el plano.
+func _actualizar_fondo_3d(nombre: String) -> void:
+	if not ATENUACION_FONDO.has(nombre):
+		if _fondo_3d != null:
+			_fondo_3d.activar(false)
+		return
+	if _fondo_3d == null:
+		_fondo_3d = FondoMenu3D.new()
+		add_child(_fondo_3d)
+		move_child(_fondo_3d, 0)
+	_fondo_3d.activar(true)
+	_fondo_3d.atenuar(float(ATENUACION_FONDO[nombre]))
 
 
 func _conectar(nueva: Node) -> void:

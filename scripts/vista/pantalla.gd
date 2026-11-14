@@ -39,6 +39,10 @@ func ocultar() -> void:
 
 
 func _fondo() -> void:
+	# Con el fondo 3D del menú visible no hace falta dibujar el plano. Fuera del menú (por ejemplo, Opciones
+	# abierta desde la pausa) se mantiene el fondo plano de siempre.
+	if FondoMenu3D.hay_activo(get_tree()):
+		return
 	var fondo := ColorRect.new()
 	fondo.color = COLOR_FONDO
 	fondo.mouse_filter = Control.MOUSE_FILTER_IGNORE
