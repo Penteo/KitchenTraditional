@@ -1,6 +1,6 @@
 # Verificación de requisitos de Traditional Kitchen
 
-Estado al 11 de noviembre de 2026. Estados: Implementado, Verificado, Pendiente, Fuera de alcance.
+Estado al 14 de noviembre de 2026. Estados: Implementado, Verificado, Pendiente, Fuera de alcance.
 
 ## Requisitos funcionales
 
@@ -9,7 +9,7 @@ Estado al 11 de noviembre de 2026. Estados: Implementado, Verificado, Pendiente,
 | RF-01 | Selección y desbloqueo de niveles | Con progreso vacío solo Fermi es seleccionable; con 1 estrella en Fermi se desbloquea JLB | Implementado |
 | RF-02 | Control cooperativo local | Prueba G1: ambos chefs a la vez, 10 de 10 cruces bloqueados, acción simultánea: solo J1 | Verificado (repetir en la máquina de evaluación) |
 | RF-03 | Manejo de ítems y estaciones (R1, R2, R5) | Tabla 14 del GDD | Implementado |
-| RF-04 | Corte, cocción y alertas | Tiempos de la Tabla 15; íconos verde, ámbar parpadeante y negro | Implementado (alertas sonoras sin archivos) |
+| RF-04 | Corte, cocción y alertas | Tiempos de la Tabla 15; íconos verde, ámbar parpadeante y negro | Implementado |
 | RF-05 | Emplatado y validación de entrega | Las 3 recetas se completan en cualquier orden; plato incorrecto rechazado | Implementado |
 | RF-06 | Pedidos | Secuencia fija, cupo 3 o 4, tarjetas con barra verde, ámbar y roja | Implementado |
 | RF-07 | Puntuación y estrellas | Umbrales 249/250, 349/350, 449/450 en Fermi y 449/450, 629/630, 809/810 en JLB | Implementado |
@@ -18,7 +18,7 @@ Estado al 11 de noviembre de 2026. Estados: Implementado, Verificado, Pendiente,
 | RF-10 | Ficha de receta y Códice | AC-CU-1 a AC-CU-3 | Implementado (textos sin fuentes) |
 | RF-11 | Guardado de progreso y volumen | AC-CU-6: el progreso persiste tras cerrar y abrir | Implementado |
 | RF-12 | Menús y pantallas informativas | Figura 5 del GDD; aviso académico visible en el menú principal | Implementado |
-| RF-13 | Audio | 10 SFX y 2 pistas con volumen ajustable | Pendiente (faltan los archivos) |
+| RF-13 | Audio | 10 SFX y 2 pistas con volumen ajustable | Implementado (10 SFX y 2 pistas, volumen ajustable) |
 | RF-14 | Telemetría local | Eventos en un CSV | Fuera de alcance (decisión del 10 de noviembre) |
 
 ## Requisitos no funcionales
