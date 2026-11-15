@@ -56,7 +56,9 @@ func _construir_partida() -> void:
 	_limpiar()
 	_nivel_escena = (load(ESCENAS_NIVEL[nivel.numero - 1]) as PackedScene).instantiate() as Node2D
 	add_child(_nivel_escena)
-	DecoradoNivel.aplicar(_nivel_escena, nivel.numero)
+	# Con el escenario 3D, suelo, paredes y estaciones son modelos; si se apaga (o falta algo), queda el decorado 2D.
+	if not Proyeccion3D.ESCENARIO_3D or not Escenario3D.aplicar(_nivel_escena, nivel.numero):
+		DecoradoNivel.aplicar(_nivel_escena, nivel.numero)
 	var estaciones: Array[Estacion] = []
 	for hijo in _nivel_escena.get_children():
 		if hijo is Estacion:

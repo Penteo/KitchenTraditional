@@ -142,20 +142,23 @@ func _draw() -> void:
 	var arriba := 0.0 if _une_arriba else 3.0
 	var abajo := 0.0 if _une_abajo else 3.0
 	var cuerpo := Rect2(-tamano / 2.0 + Vector2(izq, arriba), tamano - Vector2(izq + der, arriba + abajo))
-	if not _une_abajo:
+	if not arte_3d and not _une_abajo:
 		draw_rect(Rect2(cuerpo.position + Vector2(0.0, 6.0), cuerpo.size), Color(0.0, 0.0, 0.0, 0.25))
-	draw_style_box(_estilo_cuerpo, cuerpo)
+	if not arte_3d:
+		draw_style_box(_estilo_cuerpo, cuerpo)
 
 	var t_izq := 0.0 if _une_izq else 8.0
 	var t_der := 0.0 if _une_der else 8.0
 	var t_arriba := 0.0 if _une_arriba else 6.0
 	var t_abajo := 0.0 if _une_abajo else 16.0
 	var tope := Rect2(cuerpo.position + Vector2(t_izq, t_arriba), cuerpo.size - Vector2(t_izq + t_der, t_arriba + t_abajo))
-	draw_style_box(_estilo_tope, tope)
+	if not arte_3d:
+		draw_style_box(_estilo_tope, tope)
 
 	if _cerca:
-		draw_rect(Rect2(-tamano / 2.0 + Vector2(5.0, 5.0), tamano - Vector2(10.0, 10.0)), Color(1.0, 0.92, 0.45, 0.95), false, 4.0)
-	_dibujar_items(tope.get_center(), tamano)
+		# Con el modelo 3D el resalte sube con la altura del mueble.
+		draw_rect(Rect2(-tamano / 2.0 + Vector2(5.0, 5.0 - elevacion_3d), tamano - Vector2(10.0, 10.0 - elevacion_3d)), Color(1.0, 0.92, 0.45, 0.95), false, 4.0)
+	_dibujar_items(tope.get_center() - Vector2(0.0, elevacion_3d), tamano)
 
 
 func _dibujar_items(centro: Vector2, tamano: Vector2) -> void:

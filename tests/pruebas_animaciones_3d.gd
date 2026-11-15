@@ -12,6 +12,7 @@ func _run() -> void:
 	print("=== Verificacion de animaciones 3D ===")
 	_probar_proyeccion()
 	_probar_chef()
+	_probar_escenario()
 	print("=== %d comprobaciones, %d fallos ===" % [_total, _fallos])
 
 
@@ -66,3 +67,33 @@ func _pose(chef: ChefModelo3D, velocidad: float, cargando: bool, cortando: bool,
 	for i in maxi(pasos, 1):
 		chef.animar(1.0 / 60.0, velocidad, cargando, cortando, golpe, sacudida, direccion)
 	return chef.pose_actual()
+
+
+func _probar_escenario() -> void:
+	var vacio := Node2D.new()
+	_ok(not Escenario3D.aplicar(vacio, 1), "sin Suelo, el escenario 3D no cambia nada (queda el decorado 2D)")
+	vacio.free()
+	for numero in [1, 2]:
+		var nivel := Node2D.new()
+		var fondo := ColorRect.new()
+		fondo.name = "Fondo"
+		nivel.add_child(fondo)
+		var suelo := ColorRect.new()
+		suelo.name = "Suelo"
+		suelo.offset_left = 480.0
+		suelo.offset_top = 180.0
+		suelo.offset_right = 1440.0
+		suelo.offset_bottom = 900.0
+		nivel.add_child(suelo)
+		_ok(Escenario3D.aplicar(nivel, numero), "nivel %d: el escenario 3D se construye" % numero)
+		_ok(not suelo.visible, "nivel %d: el suelo plano queda oculto" % numero)
+		var capa := nivel.get_node_or_null("Escenario3D") as SubViewportContainer
+		_ok(capa != null and capa.get_index() < suelo.get_index() and capa.get_index() > fondo.get_index(), "nivel %d: la capa 3D va entre el fondo y lo demas" % numero)
+		var mundo := nivel.get_node_or_null("Escenario3D/%s/Mundo3D" % capa.get_child(0).name) as Node3D if capa != null else null
+		# Suelo + 4 paredes + entorno + luz + camara.
+		_ok(mundo != null and mundo.get_child_count() >= 8, "nivel %d: hay suelo, cuatro paredes, luz y camara" % numero)
+		nivel.free()
+	# La altura de una estacion en pantalla es la que dice la proyeccion.
+	var meson := Meson.new()
+	_ok(is_equal_approx(Proyeccion3D.a_pantalla(Vector3(0.0, Escenario3D.ALTURA_MOSTRADOR, 0.0)).y, -Escenario3D.ALTURA_MOSTRADOR * cos(Proyeccion3D.inclinacion()) * 100.0), "la altura del mostrador sube lo que predice la proyeccion")
+	meson.free()

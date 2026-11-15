@@ -12,6 +12,8 @@ extends RefCounted
 
 ## Interruptor general. En false el juego vuelve a usar los sprites 2D y las particulas 2D de antes.
 const ANIMACIONES_3D: bool = true
+## Interruptor del escenario (suelo, paredes, mostradores y estaciones). En false vuelve el decorado 2D de antes.
+const ESCENARIO_3D: bool = true
 
 const PIXELES_POR_UNIDAD: float = 100.0
 ## Angulo de la camara respecto al horizonte: 90 seria vista cenital pura y menos de 45 ya parece de lado.

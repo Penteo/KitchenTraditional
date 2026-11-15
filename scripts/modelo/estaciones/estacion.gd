@@ -14,6 +14,11 @@ const INTERVALO_CERCANIA: float = 0.08
 
 var items: Array[Item] = []
 
+## Con el escenario 3D (Escenario3D), el cuerpo de la estacion lo dibuja el modelo 3D: aqui solo quedan los items,
+## el resalte y el nombre. "elevacion_3d" es cuanto sube la tapa en pantalla (px), para dibujar encima de ella.
+var arte_3d: bool = false
+var elevacion_3d: float = 0.0
+
 var _textura: Texture2D = null
 var _cerca: bool = false
 var _espera_cercania: float = 0.0
@@ -26,7 +31,7 @@ func _ready() -> void:
 
 ## Vista: con arte, el nombre solo aparece (con un resalte) cuando un chef tiene esta estacion delante.
 func _process(delta: float) -> void:
-	if _textura == null:
+	if _textura == null and not arte_3d:
 		return
 	_espera_cercania -= delta
 	if _espera_cercania > 0.0:
@@ -41,6 +46,11 @@ func _process(delta: float) -> void:
 	if hay_chef != _cerca:
 		_cerca = hay_chef
 		queue_redraw()
+
+
+## El PNG de esta estacion (o null si falta). Escenario3D lo pone como tapa del modelo 3D.
+func textura_arte() -> Texture2D:
+	return _textura
 
 
 ## Busca el PNG segun la escena (plancha.tscn -> plancha.png). Si falta, se queda el dibujo provisional.
@@ -100,10 +110,12 @@ func _dibujar_extra(_tamano: Vector2) -> void:
 
 ## Resalte alrededor de la estacion y etiqueta con su nombre encima.
 func _dibujar_nombre(fuente: Font, tamano: Vector2) -> void:
-	draw_rect(Rect2(-tamano / 2.0 - Vector2(4.0, 4.0), tamano + Vector2(8.0, 8.0)), Color(1.0, 0.92, 0.45, 0.95), false, 4.0)
+	# Con el modelo 3D el contorno cubre tambien la altura de la estacion.
+	var caja := Rect2(-tamano / 2.0 - Vector2(4.0, 4.0 + elevacion_3d), tamano + Vector2(8.0, 8.0 + elevacion_3d))
+	draw_rect(caja, Color(1.0, 0.92, 0.45, 0.95), false, 4.0)
 	var medida := fuente.get_string_size(nombre, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20)
 	var ancho := medida.x + 24.0
-	var origen := Vector2(-ancho / 2.0, -tamano.y / 2.0 - 44.0)
+	var origen := Vector2(-ancho / 2.0, -tamano.y / 2.0 - 44.0 - elevacion_3d)
 	draw_rect(Rect2(origen, Vector2(ancho, 32.0)), Color(0.13, 0.08, 0.05, 0.9))
 	draw_string(fuente, origen + Vector2(12.0, 23.0), nombre, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20, Color.WHITE)
 
@@ -112,18 +124,22 @@ func _dibujar_nombre(fuente: Font, tamano: Vector2) -> void:
 func _draw() -> void:
 	var tamano := ($Colision.shape as RectangleShape2D).size
 	var fuente := ThemeDB.fallback_font
-	if _textura != null:
+	var con_arte := _textura != null or arte_3d
+	if arte_3d:
+		if _cerca:
+			_dibujar_nombre(fuente, tamano)
+	elif _textura != null:
 		draw_texture_rect(_textura, Rect2(-tamano / 2.0, tamano), false)
 		if _cerca:
 			_dibujar_nombre(fuente, tamano)
 	else:
 		draw_rect(Rect2(-tamano / 2.0, tamano), color_placeholder)
 		draw_string(fuente, Vector2(-tamano.x / 2.0, -tamano.y / 2.0 - 8.0), nombre, HORIZONTAL_ALIGNMENT_CENTER, tamano.x, 20)
-	var todo_con_arte := _textura != null
-	var paso := 52.0 if _textura != null else 40.0
+	var todo_con_arte := con_arte
+	var paso := 52.0 if con_arte else 40.0
 	for i in items.size():
-		var posicion := Vector2((i - (items.size() - 1) / 2.0) * paso, -10.0)
-		if _textura != null:
+		var posicion := Vector2((i - (items.size() - 1) / 2.0) * paso, -10.0 - elevacion_3d)
+		if con_arte:
 			if IconoItem.dibujar(self, items[i], posicion, 56.0):
 				continue
 			todo_con_arte = false

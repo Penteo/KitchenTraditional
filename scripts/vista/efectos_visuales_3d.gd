@@ -10,7 +10,7 @@ extends EfectosVisuales
 const ANCHO_PANTALLA: float = 1920.0
 const ALTO_PANTALLA: float = 1080.0
 ## Altura (unidades 3D) sobre la estacion desde donde sale el vapor.
-const ALTURA_VAPOR: float = 0.22
+const ALTURA_VAPOR: float = 0.5
 ## Las velocidades 2D de antes (px/s) se pasan a unidades/s con este factor para los movimientos horizontales.
 const FACTOR_HORIZONTAL: float = 1.25 / Proyeccion3D.PIXELES_POR_UNIDAD
 
