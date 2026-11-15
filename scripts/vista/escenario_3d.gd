@@ -24,6 +24,12 @@ const ALTURA_TAPA: float = 0.03
 ## La tapa del modelo sube un poco para no pelear con la caja de abajo (z-fighting).
 const SOBRE_TAPA: float = 0.004
 
+## Intensidad de la luz. Calibradas con una captura real: Godot multiplica la luz direccional por ~2.7, asi que con estos
+## valores una superficie horizontal queda en su color original (factor ~1.0), el frente en ~0.8 y el costado oscuro en ~0.45.
+## Si todo se ve muy claro o muy oscuro, se ajustan solo estos dos numeros (las tres escenas 3D los comparten).
+const ENERGIA_AMBIENTE: float = 0.45
+const ENERGIA_LUZ: float = 0.28
+
 ## Sombras reales de las luces (estaciones, paredes y chefs). Si se ven mal o van lento en un equipo, basta con ponerlo en false.
 const SOMBRAS: bool = true
 
@@ -82,7 +88,7 @@ static func _crear_capa(nivel_escena: Node2D, indice: int) -> Node3D:
 	ambiente.background_mode = Environment.BG_CLEAR_COLOR
 	ambiente.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	ambiente.ambient_light_color = Color(0.9, 0.92, 1.0)
-	ambiente.ambient_light_energy = 0.5
+	ambiente.ambient_light_energy = ENERGIA_AMBIENTE
 	var entorno := WorldEnvironment.new()
 	entorno.environment = ambiente
 	mundo.add_child(entorno)
@@ -90,7 +96,7 @@ static func _crear_capa(nivel_escena: Node2D, indice: int) -> Node3D:
 	# La luz viene de arriba, algo por delante y a un lado: la tapa queda mas clara que el frente y el costado.
 	var luz := DirectionalLight3D.new()
 	luz.rotation_degrees = Vector3(-50.0, 35.0, 0.0)
-	luz.light_energy = 0.72
+	luz.light_energy = ENERGIA_LUZ
 	luz.shadow_enabled = SOMBRAS
 	luz.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
 	luz.directional_shadow_max_distance = 45.0

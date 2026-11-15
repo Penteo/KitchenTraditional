@@ -63,13 +63,13 @@ func _construir_capa() -> void:
 	ambiente.background_mode = Environment.BG_CLEAR_COLOR
 	ambiente.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	ambiente.ambient_light_color = Color(0.85, 0.86, 0.92)
-	ambiente.ambient_light_energy = 0.7
+	ambiente.ambient_light_energy = Escenario3D.ENERGIA_AMBIENTE
 	var entorno := WorldEnvironment.new()
 	entorno.environment = ambiente
 	_mundo.add_child(entorno)
 	var luz := DirectionalLight3D.new()
 	luz.rotation_degrees = Vector3(-50.0, 35.0, 0.0)
-	luz.light_energy = 1.0
+	luz.light_energy = Escenario3D.ENERGIA_LUZ
 	luz.shadow_enabled = false
 	_mundo.add_child(luz)
 	var camara := Camera3D.new()

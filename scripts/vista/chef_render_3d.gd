@@ -91,7 +91,7 @@ func _crear_ambiente(mundo: Node3D) -> void:
 	ambiente.background_mode = Environment.BG_CLEAR_COLOR
 	ambiente.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	ambiente.ambient_light_color = Color(0.82, 0.84, 0.92)
-	ambiente.ambient_light_energy = 0.62
+	ambiente.ambient_light_energy = Escenario3D.ENERGIA_AMBIENTE
 	var entorno := WorldEnvironment.new()
 	entorno.environment = ambiente
 	mundo.add_child(entorno)
@@ -102,7 +102,7 @@ func _crear_luz(mundo: Node3D) -> void:
 	var luz := DirectionalLight3D.new()
 	luz.rotation_degrees = Vector3(-50.0, 35.0, 0.0)
 	luz.light_color = Color(1.0, 0.97, 0.9)
-	luz.light_energy = 1.0
+	luz.light_energy = Escenario3D.ENERGIA_LUZ
 	luz.shadow_enabled = false
 	mundo.add_child(luz)
 
