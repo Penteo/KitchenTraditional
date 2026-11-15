@@ -294,7 +294,7 @@ func _parte(padre: Node3D, malla: Mesh, color: Color, posicion: Vector3, contorn
 	instancia.mesh = malla
 	instancia.material_override = _material(color, contorno)
 	instancia.position = posicion
-	instancia.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	instancia.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if Escenario3D.SOMBRAS else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	padre.add_child(instancia)
 	return instancia
 

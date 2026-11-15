@@ -15,6 +15,8 @@ const PIE_Y: float = 30.0
 var modelo: ChefModelo3D = null
 
 var _vista: SubViewport = null
+var _sombra: MeshInstance3D = null
+var _mundo_compartido: bool = false
 var _sprite: Sprite2D = null
 
 
@@ -44,6 +46,37 @@ func construir(numero_jugador: int) -> void:
 	_sprite.position = Vector2(0.0, PIE_Y)
 	_sprite.show_behind_parent = true
 	add_child(_sprite)
+
+
+## Pone el chef en un mundo 3D que ya existe (el del escenario), sin viewport propio. El modelo y el escenario
+## comparten la profundidad: un chef detras de una estacion queda tapado por ella y uno delante la tapa a ella.
+## Hay que llamar a colocar() cada fotograma para que el modelo siga al chef 2D.
+func construir_en_mundo(numero_jugador: int, mundo: Node3D) -> void:
+	_mundo_compartido = true
+	_sombra = _crear_sombra(mundo)
+	modelo = ChefModelo3D.new()
+	modelo.name = "Chef3D%d" % numero_jugador
+	mundo.add_child(modelo)
+	modelo.construir(numero_jugador)
+
+
+## Lleva el modelo (y su sombra de contacto) hasta el punto del suelo 2D donde estan los pies del chef.
+func colocar(pies_px: Vector2) -> void:
+	if not _mundo_compartido or modelo == null:
+		return
+	var punto := Proyeccion3D.a_3d(pies_px)
+	modelo.position = punto
+	_sombra.position = Vector3(punto.x, 0.012, punto.z)
+
+
+func _exit_tree() -> void:
+	# En un mundo compartido el modelo no cuelga de este nodo: hay que quitarlo a mano al salir el chef.
+	if not _mundo_compartido:
+		return
+	if is_instance_valid(modelo):
+		modelo.queue_free()
+	if is_instance_valid(_sombra):
+		_sombra.queue_free()
 
 
 ## Pasa el estado del chef al modelo. Ver ChefModelo3D.animar para el significado de cada parametro.
@@ -82,7 +115,7 @@ func _crear_camara(mundo: Node3D) -> void:
 
 
 ## Sombra de contacto: un disco oscuro y difuso en el suelo (los sprites 2D ya traian una dibujada).
-func _crear_sombra(mundo: Node3D) -> void:
+func _crear_sombra(mundo: Node3D) -> MeshInstance3D:
 	var degradado := Gradient.new()
 	degradado.offsets = PackedFloat32Array([0.0, 0.55, 1.0])
 	degradado.colors = PackedColorArray([Color(0.08, 0.05, 0.04, 0.55), Color(0.08, 0.05, 0.04, 0.35), Color(0.08, 0.05, 0.04, 0.0)])
@@ -106,3 +139,4 @@ func _crear_sombra(mundo: Node3D) -> void:
 	sombra.position = Vector3(0.0, 0.01, 0.0)
 	sombra.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mundo.add_child(sombra)
+	return sombra

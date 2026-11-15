@@ -115,7 +115,8 @@ func _cambiar_estado(nuevo: Estado) -> void:
 
 func _dibujar_extra(tamano: Vector2) -> void:
 	var ancho := tamano.x - 20.0
-	var origen := Vector2(-ancho / 2.0, tamano.y / 2.0 - 10.0)
+	# Con el modelo 3D la barra va algo mas arriba, sobre la tapa, para que un chef parado delante no la pise.
+	var origen := Vector2(-ancho / 2.0, tamano.y / 2.0 - 10.0 - (24.0 if arte_3d else 0.0))
 	var fraccion := 0.0
 	match estado:
 		Estado.PROCESANDO:

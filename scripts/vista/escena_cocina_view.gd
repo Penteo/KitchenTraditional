@@ -70,6 +70,9 @@ func _construir_partida() -> void:
 		chef.numero_jugador = numero
 		chef.color = COLORES_CHEF[numero - 1]
 		chef.position = (_nivel_escena.get_node("SpawnJ%d" % numero) as Marker2D).position
+		# El chef 3D entra en el mundo 3D del escenario (si lo hay) para ocultarse bien detras de las estaciones.
+		if _nivel_escena.has_meta("mundo_3d"):
+			chef.set_meta("mundo_3d", _nivel_escena.get_meta("mundo_3d"))
 		add_child(chef)
 		_chefs.append(chef)
 

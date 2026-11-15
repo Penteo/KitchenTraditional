@@ -149,4 +149,9 @@ func _draw() -> void:
 		for item in items:
 			lineas.append(item.etiqueta())
 		draw_multiline_string(fuente, Vector2(-tamano.x / 2.0, 16.0), "\n".join(lineas), HORIZONTAL_ALIGNMENT_CENTER, tamano.x, 14)
+	# Barras, alertas y contadores van sobre la tapa del modelo 3D, no en el borde de abajo (ahi se cruzaria con un chef).
+	if arte_3d:
+		draw_set_transform(Vector2(0.0, -elevacion_3d))
 	_dibujar_extra(tamano)
+	if arte_3d:
+		draw_set_transform(Vector2.ZERO)

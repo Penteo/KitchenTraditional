@@ -130,13 +130,19 @@ func _crear_modelo_3d() -> void:
 	_render_3d = ChefRender3D.new()
 	_render_3d.show_behind_parent = true
 	add_child(_render_3d)
-	_render_3d.construir(_chef.numero_jugador)
+	# Si el escenario es 3D, el chef entra en su mismo mundo (profundidad correcta); si no, usa su viewport propio.
+	var mundo := _chef.get_meta("mundo_3d", null) as Node3D
+	if mundo != null and is_instance_valid(mundo):
+		_render_3d.construir_en_mundo(_chef.numero_jugador, mundo)
+	else:
+		_render_3d.construir(_chef.numero_jugador)
 	_chef.item_cambiado.connect(_render_3d.modelo.pulso)
 	_actualizar_modelo_3d(0.0)
 
 
 ## Le pasa al modelo lo que ya calcula esta vista: movimiento, carga, corte y accion invalida.
 func _actualizar_modelo_3d(delta: float) -> void:
+	_render_3d.colocar(_chef.global_position + Vector2(0.0, ChefRender3D.PIE_Y))
 	var velocidad := clampf(_chef.velocity.length() / maxf(_chef.parametros.velocidad, 1.0), 0.0, 1.0)
 	var sacudida := clampf(_parpadeo / DURACION_PARPADEO, 0.0, 1.0)
 	_render_3d.animar(delta, velocidad, animacion == Animacion.CARGAR, _chef.esta_cortando(), _golpe(), sacudida, _chef.vector_direccion())

@@ -13,6 +13,7 @@ func _run() -> void:
 	_probar_proyeccion()
 	_probar_chef()
 	_probar_escenario()
+	_probar_chef_en_escenario()
 	print("=== %d comprobaciones, %d fallos ===" % [_total, _fallos])
 
 
@@ -97,3 +98,20 @@ func _probar_escenario() -> void:
 	var meson := Meson.new()
 	_ok(is_equal_approx(Proyeccion3D.a_pantalla(Vector3(0.0, Escenario3D.ALTURA_MOSTRADOR, 0.0)).y, -Escenario3D.ALTURA_MOSTRADOR * cos(Proyeccion3D.inclinacion()) * 100.0), "la altura del mostrador sube lo que predice la proyeccion")
 	meson.free()
+
+
+func _probar_chef_en_escenario() -> void:
+	var mundo := Node3D.new()
+	var render := ChefRender3D.new()
+	render.construir_en_mundo(1, mundo)
+	_ok(render.modelo != null and render.modelo.get_parent() == mundo, "el chef 3D entra en el mundo del escenario")
+	var pies := Vector2(660.0, 390.0)
+	render.colocar(pies)
+	_ok(render.modelo.position.is_equal_approx(Proyeccion3D.a_3d(pies)), "el modelo se coloca sobre los pies del chef 2D")
+	_ok(Proyeccion3D.a_pantalla(render.modelo.position).distance_to(pies) < 0.01, "los pies del modelo caen en el mismo pixel del chef 2D")
+	# Un chef mas al sur (y mayor) esta mas cerca de la camara: tapa a una estacion que tiene detras.
+	var detras := Proyeccion3D.a_3d(Vector2(660.0, 300.0))
+	var delante := Proyeccion3D.a_3d(Vector2(660.0, 420.0))
+	_ok(delante.z > detras.z, "mas al sur significa mas cerca de la camara (la profundidad decide quien tapa)")
+	render.free()
+	mundo.free()

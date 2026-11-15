@@ -24,8 +24,8 @@ const ALTURA_TAPA: float = 0.03
 ## La tapa del modelo sube un poco para no pelear con la caja de abajo (z-fighting).
 const SOBRE_TAPA: float = 0.004
 
-## Sombras reales de las luces. Si se ven mal en un equipo, basta con ponerlo en false.
-const SOMBRAS: bool = false
+## Sombras reales de las luces (estaciones, paredes y chefs). Si se ven mal o van lento en un equipo, basta con ponerlo en false.
+const SOMBRAS: bool = true
 
 const COLOR_PARED := Color(0.86, 0.86, 0.9)
 const COLOR_MOSTRADOR := Color(0.52, 0.33, 0.2)
@@ -75,6 +75,8 @@ static func _crear_capa(nivel_escena: Node2D, indice: int) -> Node3D:
 	var mundo := Node3D.new()
 	mundo.name = "Mundo3D"
 	vista.add_child(mundo)
+	# Los chefs se meten en este mismo mundo: asi la profundidad decide quien tapa a quien (ChefRender3D.construir_en_mundo).
+	nivel_escena.set_meta("mundo_3d", mundo)
 
 	var ambiente := Environment.new()
 	ambiente.background_mode = Environment.BG_CLEAR_COLOR
@@ -91,7 +93,7 @@ static func _crear_capa(nivel_escena: Node2D, indice: int) -> Node3D:
 	luz.light_energy = 0.72
 	luz.shadow_enabled = SOMBRAS
 	luz.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
-	luz.directional_shadow_max_distance = 60.0
+	luz.directional_shadow_max_distance = 45.0
 	mundo.add_child(luz)
 
 	var camara := Camera3D.new()
