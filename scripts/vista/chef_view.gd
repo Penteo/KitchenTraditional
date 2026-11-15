@@ -1,7 +1,9 @@
 class_name ChefView
 extends Node2D
-## Vista del chef. Elige una de las tres animaciones (reposo, caminar, cargar item) y la muestra con un AnimatedSprite2D.
-## Si faltan los PNG en res://assets/art/chef/, vuelve al dibujo provisional de circulo (no se rompe nada).
+## Vista del chef. Elige una de las tres animaciones (reposo, caminar, cargar item) y la muestra.
+## Con Proyeccion3D.ANIMACIONES_3D el chef es un modelo 3D animado por codigo (ChefRender3D). Si se apaga ese
+## interruptor, usa el AnimatedSprite2D de antes. Si ademas faltan los PNG en res://assets/art/chef/, vuelve al
+## dibujo provisional de circulo (no se rompe nada).
 
 signal animacion_cambiada(animacion: Animacion)
 
@@ -15,6 +17,8 @@ const CARPETA_ARTE: String = "res://assets/art/chef/"
 const ESCALA_SPRITE: float = 1.1
 const POSICION_SPRITE: Vector2 = Vector2(0.0, -13.0)
 const ALTURA_ICONO: float = 82.0
+## El chef 3D es mas bajo en pantalla que el sprite (la camara esta inclinada), asi que el icono va mas cerca.
+const ALTURA_ICONO_3D: float = 62.0
 const VELOCIDAD_MINIMA: float = 1.0
 const DURACION_PARPADEO: float = 0.45
 
@@ -22,6 +26,7 @@ var animacion: Animacion = Animacion.REPOSO
 
 var _chef: Chef = null
 var _sprite: AnimatedSprite2D = null
+var _render_3d: ChefRender3D = null
 var _polvo: CPUParticles2D = null
 var _tiempo: float = 0.0
 var _parpadeo: float = 0.0
@@ -53,6 +58,8 @@ func _process(delta: float) -> void:
 		_direccion_dibujada = _chef.direccion
 		queue_redraw()
 	_actualizar_sprite()
+	if _render_3d != null:
+		_actualizar_modelo_3d(delta)
 
 
 func nombre_animacion() -> String:
@@ -85,6 +92,9 @@ func _icono_visible() -> bool:
 
 ## Construye los SpriteFrames desde los PNG (j1 o j2 segun el jugador). Si falta alguno, no crea el sprite.
 func _crear_sprite() -> void:
+	if Proyeccion3D.ANIMACIONES_3D:
+		_crear_modelo_3d()
+		return
 	var carpeta := "%sj%d/" % [CARPETA_ARTE, _chef.numero_jugador]
 	var frames := SpriteFrames.new()
 	if frames.has_animation("default"):
@@ -110,6 +120,32 @@ func _crear_sprite() -> void:
 	_sprite.show_behind_parent = true
 	add_child(_sprite)
 	_actualizar_sprite()
+
+
+# --- Modelo 3D ------------------------------------------------------------------------------
+
+## El polvo se crea antes que el modelo para que quede detras de el, como con el sprite.
+func _crear_modelo_3d() -> void:
+	_crear_polvo()
+	_render_3d = ChefRender3D.new()
+	_render_3d.show_behind_parent = true
+	add_child(_render_3d)
+	_render_3d.construir(_chef.numero_jugador)
+	_chef.item_cambiado.connect(_render_3d.modelo.pulso)
+	_actualizar_modelo_3d(0.0)
+
+
+## Le pasa al modelo lo que ya calcula esta vista: movimiento, carga, corte y accion invalida.
+func _actualizar_modelo_3d(delta: float) -> void:
+	var velocidad := clampf(_chef.velocity.length() / maxf(_chef.parametros.velocidad, 1.0), 0.0, 1.0)
+	var sacudida := clampf(_parpadeo / DURACION_PARPADEO, 0.0, 1.0)
+	_render_3d.animar(delta, velocidad, animacion == Animacion.CARGAR, _chef.esta_cortando(), _golpe(), sacudida, _chef.vector_direccion())
+	_polvo.emitting = _se_mueve()
+
+
+## True si el chef tiene arte (sprite o modelo 3D); si no, se usa el dibujo provisional.
+func _tiene_arte() -> bool:
+	return _sprite != null or _render_3d != null
 
 
 func _actualizar_sprite() -> void:
@@ -175,7 +211,7 @@ func _draw() -> void:
 	if _chef == null:
 		return
 	var radio := _chef.parametros.radio_colision
-	if _sprite == null:
+	if not _tiene_arte():
 		_dibujar_provisional(radio)
 	_dibujar_cuchillo(radio)
 	_dibujar_item(radio)
@@ -190,7 +226,7 @@ func _golpe() -> float:
 
 ## Cuchillo que sube y baja delante del chef mientras corta.
 func _dibujar_cuchillo(radio: float) -> void:
-	if not _chef.esta_cortando():
+	if _render_3d != null or not _chef.esta_cortando():
 		return
 	var golpe := _golpe()
 	var elevacion := 1.0 - golpe
@@ -218,9 +254,13 @@ func _dibujar_item(radio: float) -> void:
 	var item := _chef.item_en_mano
 	if item == null or not _icono_visible():
 		return
-	var altura := ALTURA_ICONO if _sprite != null else 24.0
+	var altura := 24.0
+	if _render_3d != null:
+		altura = ALTURA_ICONO_3D
+	elif _sprite != null:
+		altura = ALTURA_ICONO
 	var posicion := Vector2(0.0, -radio - altura)
-	if _sprite != null:
+	if _tiene_arte():
 		if IconoItem.dibujar(self, item, posicion, 68.0):
 			return
 	draw_circle(posicion, 16.0, item.color())

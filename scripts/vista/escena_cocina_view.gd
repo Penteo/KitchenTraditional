@@ -85,7 +85,11 @@ func _construir_partida() -> void:
 	_sesion.estado_cambiado.connect(_actualizar_controles)
 	_sesion.pausa_cambiada.connect(_actualizar_controles)
 	_conectar_audio(estaciones)
-	_efectos = EfectosVisuales.new()
+	# Con las animaciones 3D, los efectos usan particulas 3D; si se apagan, vuelven las 2D de antes.
+	if Proyeccion3D.ANIMACIONES_3D:
+		_efectos = EfectosVisuales3D.new()
+	else:
+		_efectos = EfectosVisuales.new()
 	add_child(_efectos)
 	_efectos.vincular(_sesion, estaciones)
 	_actualizar_controles(null)
